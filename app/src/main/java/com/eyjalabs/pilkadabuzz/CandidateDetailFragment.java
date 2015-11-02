@@ -141,6 +141,10 @@ public class CandidateDetailFragment extends Fragment {
         dataSet.setDrawCubic(true);
         dataSet.setDrawFilled(true);
         dataSet.setFillAlpha(255);
+        dataSet.setFillColor(getResources().getColor(R.color.primary));
+        dataSet.setColor(getResources().getColor(R.color.primaryDark));
+        dataSet.setCircleColor(getResources().getColor(R.color.primaryDark));
+        dataSet.setCircleColorHole(getResources().getColor(R.color.primaryDark));
         dataSet.setDrawHighlightIndicators(false);
         dataSet.setDrawValues(false);
         LineData data = new LineData(

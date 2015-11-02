@@ -35,7 +35,7 @@ public class App {
     private final BehaviorSubject<String> activeCandidateId$ = BehaviorSubject.create();
     private final BehaviorSubject<Boolean> loadCandidateBuzzes$ = BehaviorSubject.create();
 
-    public App() {
+    private OkHttpClient debugHttpClient() {
         OkHttpClient client = new OkHttpClient();
         client.interceptors().add(c -> {
             Log.e("HAHA", c.request().urlString());
@@ -43,11 +43,15 @@ public class App {
             Log.e("HAHA", resp.body().toString());
             return resp;
         });
+        return client;
+    }
+
+    public App() {
         this.repo = new Retrofit.Builder()
                 .baseUrl("http://128.199.207.150")
                 .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create()))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .client(client)
+//                .client(client)
                 .build()
                 .create(RepoRetrofit.class);
 
