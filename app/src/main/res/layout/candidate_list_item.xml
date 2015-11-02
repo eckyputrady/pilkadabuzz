@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:id="@+id/candidate_img"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:src="@mipmap/ic_launcher"
+        android:layout_marginLeft="16dp"
+        app:civ_border_width="1dp"
+        app:civ_border_color="@color/primary_text_default_material_light" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceListItem"
+        android:text="Candidate Name"
+        android:id="@+id/candidate_name"
+        android:layout_alignTop="@+id/candidate_img"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingStart="72dp"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="1990 Buzz"
+        android:id="@+id/candidate_buzz"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Candidate Location"
+        android:id="@+id/candidate_location"
+        android:layout_below="@+id/candidate_name"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingStart="72dp" />
+</RelativeLayout>

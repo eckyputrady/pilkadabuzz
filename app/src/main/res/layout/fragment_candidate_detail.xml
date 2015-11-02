@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<LinearLayout
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Candidate Name"
+            android:id="@+id/candidate_name"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/candidate_img"
+            android:layout_toEndOf="@+id/candidate_img"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="8dp" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:id="@+id/candidate_img"
+            android:src="@mipmap/ic_launcher"
+            app:civ_border_width="1dp"
+            app:civ_border_color="@color/primary_text_default_material_light"  />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Candidate Location"
+            android:id="@+id/candidate_location"
+            android:layout_below="@+id/candidate_name"
+            android:layout_alignLeft="@+id/candidate_name"
+            android:layout_alignStart="@+id/candidate_name"
+            android:layout_marginTop="4dp" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/primary_text_disabled_material_light"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Buzz" />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:id="@+id/line_chart"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Top Articles" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/top_articles_container"></LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
+</ScrollView>
