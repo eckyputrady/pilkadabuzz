@@ -21,6 +21,7 @@ import com.trello.rxlifecycle.RxLifecycle;
 import java.util.List;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
 
 /**
@@ -63,7 +64,7 @@ public class CandidateListFragment extends ListFragment {
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(Integer pos);
+        public void onItemSelected(String pos);
     }
 
     /**
@@ -72,7 +73,7 @@ public class CandidateListFragment extends ListFragment {
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(Integer id) {
+        public void onItemSelected(String id) {
         }
     };
 
@@ -96,7 +97,7 @@ public class CandidateListFragment extends ListFragment {
     }
 
     private void syncListAdapter(Observable<List<CandidateBuzz>> candidateBuzzes$, final CandidateBuzzAdapter adapter) {
-        Observable<List<CandidateBuzz>> composed = candidateBuzzes$.compose(RxLifecycle.bindFragment(lifecycle$));
+        Observable<List<CandidateBuzz>> composed = candidateBuzzes$.observeOn(AndroidSchedulers.mainThread()).compose(RxLifecycle.bindFragment(lifecycle$));
         composed.subscribe(candidateBuzzes -> {
             adapter.clear();
             adapter.addAll(candidateBuzzes);
@@ -163,7 +164,7 @@ public class CandidateListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
-        mCallbacks.onItemSelected(position);
+        mCallbacks.onItemSelected(((CandidateBuzz)getListAdapter().getItem(position)).candidate.id);
     }
 
     @Override

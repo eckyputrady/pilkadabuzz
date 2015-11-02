@@ -181,8 +181,8 @@ public class CandidateDetailFragment extends Fragment {
         return inflated;
     }
 
-    public Integer getCandidateIdFromArgument() {
-        Integer i = getArguments().getInt(ARG_ITEM_ID);
+    public String getCandidateIdFromArgument() {
+        String i = getArguments().getString(ARG_ITEM_ID);
         return i;
     }
 }

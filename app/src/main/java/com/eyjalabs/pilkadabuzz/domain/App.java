@@ -8,6 +8,8 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Response;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit.GsonConverterFactory;
@@ -30,7 +32,7 @@ public class App {
     private final RepoRetrofit repo;
     public final Streams streams;
 
-    private final BehaviorSubject<Integer> activeCandidateId$ = BehaviorSubject.create();
+    private final BehaviorSubject<String> activeCandidateId$ = BehaviorSubject.create();
     private final BehaviorSubject<Boolean> loadCandidateBuzzes$ = BehaviorSubject.create();
 
     public App() {
@@ -76,19 +78,41 @@ public class App {
         });
     }
 
-    private Observable<Candidate> createActiveCandidate$(Observable<List<Candidate>> candidates$, Observable<Integer> activeCandidateId$) {
-        return activeCandidateId$.withLatestFrom(candidates$, (pos, cs) -> {
-            return cs.get(pos);
-        });
+    private Observable<Candidate> createActiveCandidate$(Observable<List<Candidate>> candidates$, Observable<String> activeCandidateId$) {
+        return activeCandidateId$.withLatestFrom(candidates$, (id, cs) -> {
+            for (Candidate c : cs) if (c.id.equals(id)) return c;
+            return null;
+        }).filter(x -> x != null);
     }
 
     private Observable<List<CandidateBuzz>> createCandidateBuzz$(Observable<List<Candidate>> candidates$, Observable<Boolean> loadCandidateBuzzes$) {
-        Observable<List<Long>> buzzes$ = loadCandidateBuzzes$.switchMap(i -> Observable.just(Arrays.asList(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L)));
+        Observable<List<Long>> buzzes$ = loadCandidateBuzzes$.switchMap(i -> loadBuzzTotalFor(candidates$));
         return Observable.combineLatest(candidates$, buzzes$, (xs, ys) -> {
             Observable<Candidate> candidate$ = Observable.from(xs);
             Observable<Long> buzz$ = Observable.from(ys);
             return Observable.zip(candidate$, buzz$, (a, b) -> new CandidateBuzz(a, b)).toList().toBlocking().first();
+        }).map(xs -> {
+            Collections.sort(xs, new Comparator<CandidateBuzz>() {
+                @Override
+                public int compare(CandidateBuzz lhs, CandidateBuzz rhs) {
+                    return lhs.buzz < rhs.buzz ? 1 :
+                            lhs.buzz > rhs.buzz ? -1 :
+                                    0;
+                }
+            });
+            return xs;
         });
+    }
+
+    private Observable<List<Long>> loadBuzzTotalFor(Observable<List<Candidate>> candidates$) {
+        return candidates$.flatMapIterable(x -> x).concatMap(x -> loadBuzzTotalFor(x)).toList();
+    }
+
+    private Observable<Long> loadBuzzTotalFor(Candidate candidate) {
+        return repo.getBuzzFor(candidate.id).subscribeOn(Schedulers.io())
+                .flatMapIterable(xs -> xs)
+                .map(x -> x.value)
+                .reduce((a, b) -> a + b);
     }
 
     private Observable<List<Candidate>> createCandidate$() {
@@ -113,8 +137,8 @@ public class App {
         loadCandidateBuzzes$.onNext(true);
     }
 
-    public void setActiveCandidate(int position) {
-        activeCandidateId$.onNext(position);
+    public void setActiveCandidate(String id) {
+        activeCandidateId$.onNext(id);
     }
 
     public static class Streams {
