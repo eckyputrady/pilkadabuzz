@@ -12,12 +12,10 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:src="@mipmap/ic_launcher"
-        android:layout_marginLeft="16dp"
-        app:civ_border_width="1dp"
-        app:civ_border_color="@color/primary_text_default_material_light" />
+        android:layout_marginLeft="16dp" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="290dp"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceListItem"
         android:text="Candidate Name"
@@ -26,7 +24,9 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:paddingStart="72dp"
-        android:layout_marginTop="4dp" />
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:maxLines="1" />
 
     <TextView
         android:layout_width="wrap_content"

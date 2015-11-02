@@ -24,12 +24,17 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.squareup.picasso.Picasso;
 import com.trello.rxlifecycle.FragmentEvent;
 import com.trello.rxlifecycle.RxLifecycle;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.models.Tweet;
+import com.twitter.sdk.android.tweetui.TweetUtils;
+import com.twitter.sdk.android.tweetui.TweetView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
-
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
@@ -79,11 +84,17 @@ public class CandidateDetailFragment extends Fragment {
         App.i().streams.candidateBuzz$
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(RxLifecycle.bindFragment(lifecycle$))
-                .subscribe(buzz -> setupChart(rootView, buzz));
+                .subscribe(buzz -> setupChart(rootView, buzz), e -> Log.e("HAHA", "Fail candidate buzz", e));
         App.i().streams.candidateBuzzArticles$
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(RxLifecycle.bindFragment(lifecycle$))
                 .subscribe(articles -> setupTopArticles(rootView, articles), e -> Log.e("HAHA", "Fail articles", e));
+        App.i().streams.socioBuzzTweets$
+                .map(xs -> Observable.from(xs).map(x -> Long.parseLong(x.data)).toList().toBlocking().first())
+                .switchMap(this::loadTweets)
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.bindFragment(lifecycle$))
+                .subscribe(tweets -> setupTweetsView(rootView, tweets), e -> Log.e("HAHA", "Fail tweets", e));
 
         App.i().setActiveCandidate(getCandidateIdFromArgument());
 
@@ -116,7 +127,40 @@ public class CandidateDetailFragment extends Fragment {
         lifecycle$.onNext(FragmentEvent.DESTROY);
     }
 
+    private void setupTweetsView(View rootView, List<Tweet> tweets) {
+        // get no tweets
+        rootView.findViewById(R.id.top_tweets_notfound).setVisibility(tweets.size() > 0 ? View.GONE : View.VISIBLE);
 
+        // get the list
+        LinearLayout lv = (LinearLayout)rootView.findViewById(R.id.top_tweets_container);
+        lv.removeAllViews();
+
+        // setup adapter
+        int maxArticles = 6;
+        int marginDp = (int)(8 * getResources().getDisplayMetrics().density);
+        for (Tweet tweet : tweets) {
+            if (maxArticles-- <= 0) break;
+            TweetView v = new TweetView(getActivity(), tweet);
+            v.setPadding(0, marginDp, 0, marginDp);
+            lv.addView(v);
+        }
+    }
+
+    private Observable<List<Tweet>> loadTweets(List<Long> ids) {
+        final BehaviorSubject<List<Tweet>> tweets$ = BehaviorSubject.create();
+        TweetUtils.loadTweets(ids, new Callback<List<Tweet>>() {
+            @Override
+            public void success(Result<List<Tweet>> result) {
+                tweets$.onNext(result.data);
+            }
+
+            @Override
+            public void failure(TwitterException e) {
+                tweets$.onError(e);
+            }
+        });
+        return tweets$;
+    }
 
     private void setupCandidateDetail(View rootView, Candidate candidate) {
         ((TextView)rootView.findViewById(R.id.candidate_name)).setText(candidate.name);
@@ -158,13 +202,19 @@ public class CandidateDetailFragment extends Fragment {
     }
 
     private void setupTopArticles(View rootView, List<ArticleStats> articles) {
+        // get no articles
+        rootView.findViewById(R.id.top_articles_notfound).setVisibility(articles.size() > 0 ? View.GONE : View.VISIBLE);
+
         // get the list
         LinearLayout lv = (LinearLayout)rootView.findViewById(R.id.top_articles_container);
         lv.removeAllViews();
 
         // setup adapter
         LayoutInflater inflater = LayoutInflater.from(getActivity());
+        int maxArticles = 6;
         for (ArticleStats article : articles) {
+            if (article.data.title.startsWith("http")) continue; // Skip unresolved links
+            if (maxArticles-- <= 0) break;
             lv.addView(setupArticle(inflater.inflate(R.layout.article_item, lv, false), article));
         }
     }

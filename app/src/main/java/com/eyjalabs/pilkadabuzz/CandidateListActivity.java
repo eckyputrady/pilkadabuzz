@@ -3,6 +3,7 @@ package com.eyjalabs.pilkadabuzz;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 
@@ -22,8 +23,7 @@ import android.util.Log;
  * {@link CandidateListFragment.Callbacks} interface
  * to listen for item selections.
  */
-public class CandidateListActivity extends ActionBarActivity
-        implements CandidateListFragment.Callbacks {
+public class CandidateListActivity extends AppCompatActivity implements CandidateListFragment.Callbacks {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -35,6 +35,9 @@ public class CandidateListActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_candidate_list);
+
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setIcon(R.drawable.ic_launcher);
 
         if (findViewById(R.id.candidate_detail_container) != null) {
             // The detail container view will be present only in the

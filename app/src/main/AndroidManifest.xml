@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".PilkadaBuzzApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -27,6 +28,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".CandidateListActivity" />
         </activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="0818f1d28b33bdd7aa90fd1e4d62c39c4a3cbd72" />
     </application>
 
 </manifest>
