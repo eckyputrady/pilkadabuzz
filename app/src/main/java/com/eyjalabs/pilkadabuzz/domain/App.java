@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
@@ -39,11 +40,11 @@ public class App {
                 .create(RepoRetrofit.class);
 
         Observable<List<Candidate>> candidate$ = createCandidate$().replay(1).refCount();
-        Observable<List<CandidateBuzz>> candidateBuzzes$ = createCandidateBuzz$(candidate$, loadCandidateBuzzes$);
+        Observable<List<CandidateBuzz>> candidateBuzzes$ = createCandidateBuzz$(candidate$, loadCandidateBuzzes$).replay(1).autoConnect();
         Observable<Candidate> activeCandidate$ = createActiveCandidate$(candidate$, activeCandidateId$).share();
-        Observable<List<BuzzAt>> activeCandidateBuzz$ = createActiveCandidateBuzz$(activeCandidate$);
-        Observable<List<ArticleStats>> activeCandidateTopArticles$ = createActiveCandidateTopArticles$(activeCandidate$);
-        Observable<List<SocioBuzzTweet>> socioBuzzTweets$ = createSocioBuzzTweets$(activeCandidate$);
+        Observable<List<BuzzAt>> activeCandidateBuzz$ = createActiveCandidateBuzz$(activeCandidate$).replay(1).autoConnect();
+        Observable<List<ArticleStats>> activeCandidateTopArticles$ = createActiveCandidateTopArticles$(activeCandidate$).replay(1).autoConnect();
+        Observable<List<SocioBuzzTweet>> socioBuzzTweets$ = createSocioBuzzTweets$(activeCandidate$).replay(1).autoConnect();
 
         this.streams = new Streams(
                 candidate$,
@@ -61,7 +62,7 @@ public class App {
     }
 
     private Observable<List<ArticleStats>> createActiveCandidateTopArticles$(Observable<Candidate> activeCandidate$) {
-        return activeCandidate$.switchMap(candidate -> {
+        return activeCandidate$.distinctUntilChanged().switchMap(candidate -> {
             return repo.getArticlesFor(candidate.id).subscribeOn(Schedulers.io());
         });
     }
@@ -80,7 +81,7 @@ public class App {
     }
 
     private Observable<List<CandidateBuzz>> createCandidateBuzz$(Observable<List<Candidate>> candidates$, Observable<Boolean> loadCandidateBuzzes$) {
-        Observable<List<Long>> buzzes$ = loadCandidateBuzzes$.switchMap(i -> loadBuzzTotalFor(candidates$));
+        Observable<List<Long>> buzzes$ = loadCandidateBuzzes$.throttleFirst(5, TimeUnit.MINUTES).switchMap(i -> loadBuzzTotalFor(candidates$));
         return Observable.combineLatest(candidates$, buzzes$, (xs, ys) -> {
             Observable<Candidate> candidate$ = Observable.from(xs);
             Observable<Long> buzz$ = Observable.from(ys);
